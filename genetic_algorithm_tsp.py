@@ -113,22 +113,21 @@ class GeneticAlgorithmTSP: #Passo12
 
     def crossover(self, parent1, parent2):#Passo23
         
-        offspring_length = len(parent1) - 2 
+        offspring_length = len(parent1) - 3 
 
         offspring = ['' for _ in range(offspring_length)]
         
         index_low, index_high = self.computeTwoPointIndexes(parent1)
-
-        offspring[index_low: index_high + 1] = list(parent1)[index_low: index_high + 1]
-        
+        offspring[index_low: index_high ] = list(parent1)[index_low: index_high ]
         empty_place_indexes = [i for i in range(offspring_length) if offspring[i] == '']
-        for i in parent2[1: -1]:  
+        for i in parent2[1: -2]:  
             if '' not in offspring or not empty_place_indexes:
                 break
             if i not in offspring:
                 offspring[empty_place_indexes.pop(0)] = i
-
-        offspring = [self.graph.start_city] + offspring + [self.graph.start_city]
+        
+        offspring = [self.graph.start_city] + offspring + [self.graph.pent_point] +[self.graph.start_city]
+    
         return ''.join(offspring)
 
 
@@ -143,7 +142,7 @@ class GeneticAlgorithmTSP: #Passo12
     def computeTwoPointIndexes(self,parent):#Passo24
         
         index_low = rd.randint(1, len(parent) - 3)
-        index_high = rd.randint(index_low+1, len(parent) - 2)
+        index_high = rd.randint(index_low, len(parent) - 3)
 
         if index_high - index_low > math.ceil(len(parent) // 2):
               return self.computeTwoPointIndexes(parent)
