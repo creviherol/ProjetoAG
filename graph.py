@@ -25,7 +25,7 @@ class Graph:
                 self.add_edge(a, key, distance)
         
 
-    def euclidean_distance(self, a, b): #Passo9
+    def euclidean_distance(self, a, b): #Passo9/Passo20
         
         x1, y1 = self.nodes[a]
         x2, y2 = self.nodes[b]
@@ -36,7 +36,7 @@ class Graph:
        
         return list(self.edges.keys())
 
-    def getPathCost(self, path, incl_return_distance=False):
+    def getPathCost(self, path, incl_return_distance=True): #Passo19
       
         pairs = zip(path, path[1:])
         cost = sum(self.euclidean_distance(city1, city2) for city1, city2 in pairs)

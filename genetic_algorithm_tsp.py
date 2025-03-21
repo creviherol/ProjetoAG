@@ -71,14 +71,14 @@ class GeneticAlgorithmTSP: #Passo12
 
         return fittest_route, fittest_fitness
 
-    def create_next_generation(self, graph, population, number_of_fits_to_carryover):
+    def create_next_generation(self, graph, population, number_of_fits_to_carryover): #Passo16
        
         new_population = self.add_fittest_routes(graph, population, number_of_fits_to_carryover)
         new_population += [self.mutate(self.crossover(*self.select_parents(graph, population))) for _ in
                            range(self.population_size - number_of_fits_to_carryover)]
         return new_population
 
-    def add_fittest_routes(self, graph, population, number_of_fits_to_carryover):
+    def add_fittest_routes(self, graph, population, number_of_fits_to_carryover): #Passo17
        
         sorted_population = [x for _, x in sorted(zip(self.computeFitness(graph, population), population))]
         return sorted_population[:number_of_fits_to_carryover]
@@ -89,7 +89,7 @@ class GeneticAlgorithmTSP: #Passo12
         fittest_index = self.minCostIndex(fitness)
         return fittest_index, population[fittest_index], fitness[fittest_index]
 
-    def select_parents(self, graph, population):
+    def select_parents(self, graph, population):#Passo21
        
         return self.tournamentSelection(graph, population), self.tournamentSelection(graph, population)
 
@@ -102,26 +102,25 @@ class GeneticAlgorithmTSP: #Passo12
             for _ in range(self.population_size)
         ]
 
-    def computeFitness(self, graph, population):
+    def computeFitness(self, graph, population):#Passo18
         
         return [graph.getPathCost(path) for path in population]
 
-    def tournamentSelection(self, graph, population):
+    def tournamentSelection(self, graph, population):#Passo22
         
         tournament_contestants = rd.choices(population, k=self.tournament_size)
         return min(tournament_contestants, key=lambda path: graph.getPathCost(path))
 
-    def crossover(self, parent1, parent2):
+    def crossover(self, parent1, parent2):#Passo23
         
-        offspring_length = len(parent1) - 2  
+        offspring_length = len(parent1) - 2 
 
         offspring = ['' for _ in range(offspring_length)]
-
+        
         index_low, index_high = self.computeTwoPointIndexes(parent1)
 
-        
         offspring[index_low: index_high + 1] = list(parent1)[index_low: index_high + 1]
-
+        
         empty_place_indexes = [i for i in range(offspring_length) if offspring[i] == '']
         for i in parent2[1: -1]:  
             if '' not in offspring or not empty_place_indexes:
@@ -141,7 +140,7 @@ class GeneticAlgorithmTSP: #Passo12
         else:
             return genome
 
-    def computeTwoPointIndexes(self,parent):
+    def computeTwoPointIndexes(self,parent):#Passo24
         
         index_low = rd.randint(1, len(parent) - 3)
         index_high = rd.randint(index_low+1, len(parent) - 2)

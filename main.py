@@ -26,7 +26,7 @@ def main():
         germany_graph.add_node(city_mapping[city], int(x), int(y))
 
     germany_graph.start_city = city_mapping['A1'] #Defini a cidade inicial
-    germany_graph.pent_point = city_mapping['A7'] #Defini a cidade que deve passar antes de ir para o final
+    germany_graph.pent_point = city_mapping['A5'] #Defini a cidade que deve passar antes de ir para o final
     GeneticAlgorithmTSP.Bloco_notas(str(germany_graph.start_city) + "\n")
     GeneticAlgorithmTSP.Bloco_notas(str(germany_graph.pent_point) + "\n")
 
@@ -34,8 +34,8 @@ def main():
     ga_tsp_germany = GeneticAlgorithmTSP( #Passo11
         graph=germany_graph,
         city_names=[city for city, _, _ in cities], 
-        generations=1,
-        population_size=50,
+        generations=5,
+        population_size=10,
         tournament_size=5,
         mutationRate=0.1,
         fitness_selection_rate=0.5,
