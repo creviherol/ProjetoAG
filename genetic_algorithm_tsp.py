@@ -3,7 +3,7 @@ import math
 import numpy as np
 from collections import OrderedDict
 
-class GeneticAlgorithmTSP:
+class GeneticAlgorithmTSP: #Passo12
 
     def __init__(self, graph, city_names, generations=20, population_size=10, tournament_size=4, mutationRate=0.1, fitness_selection_rate=0.1):
 
@@ -41,7 +41,7 @@ class GeneticAlgorithmTSP:
 
         return min(range(len(costs)), key=costs.__getitem__)
 
-    def find_fittest_path(self, graph):
+    def find_fittest_path(self, graph):#Passo14
         
         population = self.randomizeCities(graph.vertices())
         number_of_fits_to_carryover = math.ceil(self.population_size * self.fitness_selection_rate)
@@ -93,12 +93,12 @@ class GeneticAlgorithmTSP:
        
         return self.tournamentSelection(graph, population), self.tournamentSelection(graph, population)
 
-    def randomizeCities(self, graph_nodes):
+    def randomizeCities(self, graph_nodes):#Passo15
         
-        nodes = [node for node in graph_nodes if node != self.graph.start_city]
+        nodes = [node for node in graph_nodes if node != self.graph.start_city and node != self.graph.pent_point]
 
         return [
-            self.graph.start_city + ''.join(rd.sample(nodes, len(nodes))) + self.graph.start_city
+            self.graph.start_city + ''.join(rd.sample(nodes, len(nodes))) + self.graph.pent_point + self.graph.start_city
             for _ in range(self.population_size)
         ]
 
@@ -160,3 +160,7 @@ class GeneticAlgorithmTSP:
     def converged(self, population):
         
         return all(genome == population[0] for genome in population)
+    
+    def Bloco_notas (texto):
+        with open("meu_arquivo.txt", "a") as arquivo:
+            arquivo.writelines(texto + "\n")
