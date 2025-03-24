@@ -1,6 +1,6 @@
 import re
-from graph import Graph
-from genetic_algorithm_tsp import GeneticAlgorithmTSP
+from grafo import Graph
+from AG_TPS import EXE_AG_TSP
 from plot import plot_tsp_path, plot_genetic_diversity
 from collections import OrderedDict
 
@@ -8,51 +8,59 @@ with open("meu_arquivo.txt", "w") as arquivo:
     pass  # Não escreve nada, só apaga o conteúdo
 
 def main():
-    with open('cities.txt', 'r') as file: #Passo1
-        cities_data = file.read() #Le o arquivo cidades e coloca na variavel cidade_data
+    with open('Pont_de_interece.txt', 'r') as file: #Passo1
+        Pont_Data = file.read() #Le o arquivo Pont_de_interece e coloca na variavel Pont_Data
 
-    city_pattern = re.compile(r'(\w+):\s\((\d+),\s(\d+)\)') #Passo2
+    Pont_modulo = re.compile(r'(\w+):\s\((\d+),\s(\d+)\)') #Passo2
+    #Orgazisa um metodo de compilar os pontos de interese 
 
-    cities = city_pattern.findall(cities_data) #Passo3
-    GeneticAlgorithmTSP.Bloco_notas(str(cities) + "\n")
+    Ponts = Pont_modulo.findall(Pont_Data) #Passo3 
+    #Usa o metodo criado para organizar os pontos de interese
 
-    city_mapping = OrderedDict((city[0], chr(i + 33)) for i, city in enumerate(cities)) #Passo4
-    GeneticAlgorithmTSP.Bloco_notas(str(city_mapping) + "\n")
+    Pont_mapeamento = OrderedDict((Pont[0], chr(i + 33)) for i, Pont in enumerate(Ponts)) #Passo4
+    """
+    cria um dicionario de pares com o primeiro valor sendo dos modulos de Ponts que no caso seram
+    o nome do ponto e uma função que coloca cada ponto um um um unicode para a criação do cromossomo
+    sendo começando pelo unicode 33   
+    """
 
-    germany_graph = Graph(len(cities), False) #Passo5
-    #Cria um grafo com o numero de verticer 
+    Pont_grafo = Graph(len(Ponts)) #Passo5
+    #Coloca o valor de tamanho como quantos pontos existe
 
-    for city, x, y in cities: #Passo7
-        germany_graph.add_node(city_mapping[city], int(x), int(y))
+    for Pont, x, y in Ponts: #Passo7
+        Pont_grafo.add_no(Pont_mapeamento[Pont], int(x), int(y))
+        """"
+        Manda os parametros dos caracteres do gene e os pontos no mapa x e y
+        e repete o loop um numero de vezes igual o numero de pontos 
+        """
 
-    germany_graph.start_city = city_mapping['A6'] #Defini a cidade inicial
-    germany_graph.pent_point = city_mapping['A2'] #Defini a cidade que deve passar antes de ir para o final
-    GeneticAlgorithmTSP.Bloco_notas(str(germany_graph.start_city) + "\n")
-    GeneticAlgorithmTSP.Bloco_notas(str(germany_graph.pent_point) + "\n")
+    Pont_grafo.Pont_inicial = Pont_mapeamento['A1'] #Defini a cidade inicial
+    Pont_grafo.pent_point = Pont_mapeamento['A6'] #Defini a cidade que deve passar antes de ir para o final
 
-
-    ga_tsp_germany = GeneticAlgorithmTSP( #Passo11
-        graph=germany_graph,
-        city_names=[city for city, _, _ in cities], 
-        generations=100,
-        population_size=200,
-        tournament_size=5,
-        mutationRate=0.1,
-        fitness_selection_rate=0.5,
+    AG_TSP = EXE_AG_TSP( #Passo11
+        grafo=Pont_grafo,
+        Pont_nomes=[Pont for Pont, _, _ in Ponts],
+        #lista dos nomes das cidades 
+        geracoes=100,
+        tamanho_populacao=100,
+        tamanho_torneio=5,
+        taxa_mutacao=0.1,
+        taxa_de_aptidao=0.5,
+        #Declara alguns parametros para excução do TPS
     )
 
-    fittest_path, path_cost = ga_tsp_germany.find_fittest_path(germany_graph) #Passo13
+    caminho_apto, custo_caminho = AG_TSP.menor_caminho(Pont_grafo)#Passo13
 
-    genetic_diversity_values = ga_tsp_germany.get_genetic_diversity_values()
+    genetic_diversity_values = AG_TSP.get_genetic_diversity_values()
 
-    formatted_path = ' -> '.join(fittest_path)
-    print('\nPath: {0}\nCost: {1}'.format(formatted_path, path_cost))
+    formatted_path = ' -> '.join(caminho_apto)
+    print('\nPath: {0}\nCost: {1}'.format(formatted_path, custo_caminho))
 
-    coordinates_dict = {city: (int(x), int(y)) for city, x, y in cities}
+    coordinates_dict = {Pont: (int(x), int(y)) for Pont, x, y in Ponts}
 
-    coordinates_list = [coordinates_dict[city] for city in fittest_path]
+    coordinates_list = [coordinates_dict[Pont] for Pont in caminho_apto]
 
-    plot_tsp_path(fittest_path, coordinates_list, 'fabrica.png', path_cost)
+    plot_tsp_path(caminho_apto, coordinates_list, 'fabrica.png', custo_caminho)
 
     plot_genetic_diversity(genetic_diversity_values)
 
