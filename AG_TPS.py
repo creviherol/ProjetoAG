@@ -75,24 +75,24 @@ class EXE_AG_TSP: #Passo12
     def criar_nova_geracao(self, grafo, populacao, numero_de_transferencia): #Passo16
        
         nova_populacao = self.add_rotas_aptas(grafo, populacao, numero_de_transferencia)
-        nova_populacao += [self.mutate(self.crossover(*self.select_parents(grafo, populacao))) for _ in
+        nova_populacao += [self.mutacao(self.crossover(*self.selecao_parentes(grafo, populacao))) for _ in
                            range(self.tamanho_populacao - numero_de_transferencia)]
         return nova_populacao
 
     def add_rotas_aptas(self, grafo, populacao, numero_de_transferencia): #Passo17
        
-        sorted_population = [x for _, x in sorted(zip(self.computeFitness(grafo, populacao), populacao))]
+        sorted_population = [x for _, x in sorted(zip(self.calcular_aptidao(grafo, populacao), populacao))]
         return sorted_population[:numero_de_transferencia]
 
     def obter_rota_adequada(self, grafo, populacao):
         
-        fitness = self.computeFitness(grafo, populacao)
+        fitness = self.calcular_aptidao(grafo, populacao)
         indice_aptidao = self.minCostIndex(fitness)
         return indice_aptidao, populacao[indice_aptidao], fitness[indice_aptidao]
 
-    def select_parents(self, grafo, populacao):#Passo21
-       
-        return self.tournamentSelection(grafo, populacao), self.tournamentSelection(grafo, populacao)
+    def selecao_parentes(self, grafo, populacao):#Passo21
+       #seleciona os individos
+        return self.selecao_torneio(grafo, populacao), self.selecao_torneio(grafo, populacao)
 
     def Pont_randomico(self, nos_grafo):#Passo15
         
@@ -103,36 +103,36 @@ class EXE_AG_TSP: #Passo12
             for _ in range(self.tamanho_populacao)
         ]
 
-    def computeFitness(self, grafo, populacao):#Passo18
+    def calcular_aptidao(self, grafo, populacao):#Passo18
         
-        return [grafo.getPathCost(path) for path in populacao]
+        return [grafo.obter_custo_caminho(caminho) for caminho in populacao]
 
-    def tournamentSelection(self, grafo, populacao):#Passo22
+    def selecao_torneio(self, grafo, populacao):#Passo22
         
-        tournament_contestants = rd.choices(populacao, k=self.tamanho_torneio)
-        return min(tournament_contestants, key=lambda path: grafo.getPathCost(path))
+        competidores_torneio = rd.choices(populacao, k=self.tamanho_torneio)
+        return min(competidores_torneio, key=lambda caminho: grafo.obter_custo_caminho(caminho))
 
-    def crossover(self, parent1, parent2):#Passo23
+    def crossover(self, parent1, parent2):#Passo24
         
-        offspring_length = len(parent1) - 3 
-
-        offspring = ['' for _ in range(offspring_length)]
+        comprimento_prole = len(parent1) - 3 
+        #valor de quantidades de genes nemos os 2 de inicio e o penutimo
+        filhos = ['' for _ in range(comprimento_prole)]
         
         index_low, index_high = self.computeTwoPointIndexes(parent1)
-        offspring[index_low: index_high ] = list(parent1)[index_low: index_high ]
-        empty_place_indexes = [i for i in range(offspring_length) if offspring[i] == '']
+        filhos[index_low: index_high ] = list(parent1)[index_low: index_high ]
+        empty_place_indexes = [i for i in range(comprimento_prole) if filhos[i] == '']
         for i in parent2[1: -2]:  
-            if '' not in offspring or not empty_place_indexes:
+            if '' not in filhos or not empty_place_indexes:
                 break
-            if i not in offspring:
-                offspring[empty_place_indexes.pop(0)] = i
+            if i not in filhos:
+                filhos[empty_place_indexes.pop(0)] = i
         
-        offspring = [self.grafo.Pont_inicial] + offspring + [self.grafo.pent_point] +[self.grafo.Pont_inicial]
+        filhos = [self.grafo.Pont_inicial] + filhos + [self.grafo.pent_point] +[self.grafo.Pont_inicial]
     
-        return ''.join(offspring)
+        return ''.join(filhos)
 
 
-    def mutate(self, genome):
+    def mutacao(self, genome):
         
         if rd.random() < self.taxa_mutacao:
             index_low, index_high = self.computeTwoPointIndexes(genome)

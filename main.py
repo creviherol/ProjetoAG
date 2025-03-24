@@ -34,7 +34,7 @@ def main():
         e repete o loop um numero de vezes igual o numero de pontos 
         """
 
-    Pont_grafo.Pont_inicial = Pont_mapeamento['A1'] #Defini a cidade inicial
+    Pont_grafo.Pont_inicial = Pont_mapeamento['A3'] #Defini a cidade inicial
     Pont_grafo.pent_point = Pont_mapeamento['A6'] #Defini a cidade que deve passar antes de ir para o final
 
     AG_TSP = EXE_AG_TSP( #Passo11

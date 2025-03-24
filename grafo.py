@@ -51,13 +51,9 @@ class Graph:
        
         return list(self.bordas.keys())
 
-    def getPathCost(self, path, incl_return_distance=True): #Passo19
+    def obter_custo_caminho(self, caminho): #Passo19/Passo23
       
-        pairs = zip(path, path[1:])
-        cost = sum(self.distancia_euclidiana(city1, city2) for city1, city2 in pairs)
-
-        if incl_return_distance:
-           
-            cost += self.distancia_euclidiana(path[0], path[-1])
-
-        return cost
+        pares = zip(caminho, caminho[1:])
+        custo = sum(self.distancia_euclidiana(Pont1, Pont2) for Pont1, Pont2 in pares)
+        
+        return custo
