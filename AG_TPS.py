@@ -20,24 +20,22 @@ class EXE_AG_TSP: #Passo12
         #Cria um dicionario de pares dos numeros de 32 a 127 referentes a cada ponto
     
 
-    def calculate_genetic_diversity(self, populacao):
+    def calculo_diverciade_genetica(self, populacao):#Passo 33
         
-        routes_matrix = np.array([list(route) for route in populacao])
+        matrix_rota = np.array([list(rota) for rota in populacao])
+        distancia_pares = np.sum(matrix_rota[:, None, :] != matrix_rota[None, :, :], axis=2)
+        distancia_total = np.sum(distancia_pares)
+        numero_pares = len(populacao) * (len(populacao) - 1)
+        average_distance = distancia_total / numero_pares
+        divercidade_genetica = 1 / (1 + average_distance)
 
-        pairwise_distances = np.sum(routes_matrix[:, None, :] != routes_matrix[None, :, :], axis=2)
+        return divercidade_genetica
 
-        total_distance = np.sum(pairwise_distances)
-        num_pairs = len(populacao) * (len(populacao) - 1)
-        average_distance = total_distance / num_pairs
-        genetic_diversity = 1 / (1 + average_distance)
-
-        return genetic_diversity
-
-    def get_genetic_diversity_values(self):
+    def obter_divercidade_genetica(self):#Passo36
     
         return self.valor_divercidade_genetica
 
-    def minCostIndex(self, costs):
+    def indice_custo_minimo(self, costs):#Passo32
 
         return min(range(len(costs)), key=costs.__getitem__)
 
@@ -51,25 +49,23 @@ class EXE_AG_TSP: #Passo12
             raise ValueError('A taxa de aptidão deve estar em [0, 1].')
         #Avalia se o numero de melhores individos que ficaram e maior que a população
         print('Otimizando a rota:')
-
         for geracao in range(1, self.geracoes + 1):
-            
             nova_populacao = self.criar_nova_geracao(grafo, populacao, numero_de_transferencia)
             populacao = nova_populacao
-
+            #nova população criada para a nova geração
             indice_aptidao, rota_apta, aptdao_apta = self.obter_rota_adequada(grafo, populacao)
             rota_apta = [list(OrderedDict(self.Pont_mapeado).values())[
-                                 list(OrderedDict(self.Pont_map).values()).index(char)] if char in list(
-                OrderedDict(self.Pont_map).values()) else char for char in rota_apta]
+                    list(OrderedDict(self.Pont_map).values()).index(char)] if char in list(
+                    OrderedDict(self.Pont_map).values()) else char for char in rota_apta]
+            #calcula entre todas as rotas a mais apta
            
-            genetic_diversity = self.calculate_genetic_diversity(populacao)
-            self.valor_divercidade_genetica.append(round(genetic_diversity, 4))
-            
+            divercidade_genetica = self.calculo_diverciade_genetica(populacao)
+            self.valor_divercidade_genetica.append(round(divercidade_genetica, 4))
+            #Adiciona a divicidade dessa geração para a lista de divercidade com 4 casas 
             if self.converged(populacao):
                 print("Convergiu", populacao)
                 print('\nConvergiu em um lugar minimo.')
-                break
-
+                break #Analisa se a população convergiu
         return rota_apta, aptdao_apta
 
     def criar_nova_geracao(self, grafo, populacao, numero_de_transferencia): #Passo16
@@ -84,11 +80,11 @@ class EXE_AG_TSP: #Passo12
         sorted_population = [x for _, x in sorted(zip(self.calcular_aptidao(grafo, populacao), populacao))]
         return sorted_population[:numero_de_transferencia]
 
-    def obter_rota_adequada(self, grafo, populacao):
+    def obter_rota_adequada(self, grafo, populacao):#Passo30
         
-        fitness = self.calcular_aptidao(grafo, populacao)
-        indice_aptidao = self.minCostIndex(fitness)
-        return indice_aptidao, populacao[indice_aptidao], fitness[indice_aptidao]
+        aptidao = self.calcular_aptidao(grafo, populacao)
+        indice_aptidao = self.indice_custo_minimo(aptidao)
+        return indice_aptidao, populacao[indice_aptidao], aptidao[indice_aptidao]
 
     def selecao_parentes(self, grafo, populacao):#Passo21
        #seleciona os individos
@@ -103,7 +99,7 @@ class EXE_AG_TSP: #Passo12
             for _ in range(self.tamanho_populacao)
         ]
 
-    def calcular_aptidao(self, grafo, populacao):#Passo18
+    def calcular_aptidao(self, grafo, populacao):#Passo18/Passo31
         
         return [grafo.obter_custo_caminho(caminho) for caminho in populacao]
 
@@ -115,48 +111,57 @@ class EXE_AG_TSP: #Passo12
     def crossover(self, parent1, parent2):#Passo24
         
         comprimento_prole = len(parent1) - 3 
-        #valor de quantidades de genes nemos os 2 de inicio e o penutimo
+        #valor de quantidades de genes menos os 2 de inicio e o penutimo
         filhos = ['' for _ in range(comprimento_prole)]
-        
-        index_low, index_high = self.computeTwoPointIndexes(parent1)
-        filhos[index_low: index_high ] = list(parent1)[index_low: index_high ]
-        empty_place_indexes = [i for i in range(comprimento_prole) if filhos[i] == '']
-        for i in parent2[1: -2]:  
-            if '' not in filhos or not empty_place_indexes:
+        #Cria uma lista com um numeros de espaço igual o comprimento da prole
+        indice_baixo, indice_alto = self.calcular_indice_2Pont(parent1)
+        #Gera dois pontos de rupitura para crosover do individo
+        filhos[indice_baixo: indice_alto ] = list(parent1)[indice_baixo: indice_alto ]
+        #pega os genes na lista com os genes do parente1 em relação aos pontos gerados
+        indice_lugar_vazio = [i for i in range(comprimento_prole) if filhos[i] == '']
+        for i in parent2[1: -2]:
+            #preenche os pontos não preenchidos com os genes do parente2  
+            if '' not in filhos or not indice_lugar_vazio:
                 break
             if i not in filhos:
-                filhos[empty_place_indexes.pop(0)] = i
+                filhos[indice_lugar_vazio.pop(0)] = i
         
         filhos = [self.grafo.Pont_inicial] + filhos + [self.grafo.pent_point] +[self.grafo.Pont_inicial]
     
         return ''.join(filhos)
 
 
-    def mutacao(self, genome):
+    def mutacao(self, genome):#Passo26
         
         if rd.random() < self.taxa_mutacao:
-            index_low, index_high = self.computeTwoPointIndexes(genome)
-            return self.swap(index_low, index_high, genome)
+            #Se a probabilidade de mutação for atendida ele executa 
+            indice_baixo, indice_alto = self.calcular_indice_2Pont(genome)
+            return self.troca(indice_baixo, indice_alto, genome)
         else:
             return genome
 
-    def computeTwoPointIndexes(self,parent):#Passo24
+    def calcular_indice_2Pont(self,parent):#Passo25/PASSO28
         
-        index_low = rd.randint(1, len(parent) - 3)
-        index_high = rd.randint(index_low, len(parent) - 3)
-
-        if index_high - index_low > math.ceil(len(parent) // 2):
-              return self.computeTwoPointIndexes(parent)
+        indice_baixo = rd.randint(1, len(parent) - 3)
+        #Calcula um ponto entre 1 e o numero de pontos do problema -3
+        indice_alto = rd.randint(indice_baixo, len(parent) - 3)
+        #Calcula um segundo ponto o valor anterio e o numero de pontos do problema -3
+        if indice_alto - indice_baixo > math.ceil(len(parent) // 2):
+              #Se o diferença de os indices for maior 
+              return self.calcular_indice_2Pont(parent)
         else:
-              return index_low, index_high
+              return indice_baixo, indice_alto
 
-    def swap(self, index_low, index_high, string):
+    def troca(self, indice_baixo, indice_alto, genome):#Passo29
         
-        string = list(string)
-        string[index_low], string[index_high] = string[index_high], string[index_low]
-        return ''.join(string)
+        genome = list(genome)
+        #print(genome)
+        genome[indice_baixo], genome[indice_alto] = genome[indice_alto], genome[indice_baixo]
+        #ele troca dois pontos de lugar para assim ocorrer a mutação
+        #print(genome)
+        return ''.join(genome)
 
-    def converged(self, populacao):
+    def converged(self, populacao):#Passo34
         
         return all(genome == populacao[0] for genome in populacao)
     

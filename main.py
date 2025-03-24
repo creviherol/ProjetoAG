@@ -34,15 +34,15 @@ def main():
         e repete o loop um numero de vezes igual o numero de pontos 
         """
 
-    Pont_grafo.Pont_inicial = Pont_mapeamento['A3'] #Defini a cidade inicial
-    Pont_grafo.pent_point = Pont_mapeamento['A6'] #Defini a cidade que deve passar antes de ir para o final
+    Pont_grafo.Pont_inicial = Pont_mapeamento['Recepcao'] #Defini a cidade inicial
+    Pont_grafo.pent_point = Pont_mapeamento['Refeitorio'] #Defini a cidade que deve passar antes de ir para o final
 
     AG_TSP = EXE_AG_TSP( #Passo11
         grafo=Pont_grafo,
         Pont_nomes=[Pont for Pont, _, _ in Ponts],
         #lista dos nomes das cidades 
-        geracoes=100,
-        tamanho_populacao=100,
+        geracoes=10,
+        tamanho_populacao=15,
         tamanho_torneio=5,
         taxa_mutacao=0.1,
         taxa_de_aptidao=0.5,
@@ -51,10 +51,10 @@ def main():
 
     caminho_apto, custo_caminho = AG_TSP.menor_caminho(Pont_grafo)#Passo13
 
-    genetic_diversity_values = AG_TSP.get_genetic_diversity_values()
+    genetic_diversity_values = AG_TSP.obter_divercidade_genetica()#Passo35
 
-    formatted_path = ' -> '.join(caminho_apto)
-    print('\nPath: {0}\nCost: {1}'.format(formatted_path, custo_caminho))
+    formatacao_caminho = ' -> '.join(caminho_apto)
+    print('\nCaminho: {0}\nCusto: {1}'.format(formatacao_caminho, custo_caminho))
 
     coordinates_dict = {Pont: (int(x), int(y)) for Pont, x, y in Ponts}
 
